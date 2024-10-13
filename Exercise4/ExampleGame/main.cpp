@@ -6,6 +6,7 @@
 #include "Game/PlayerController.h"
 #include "Game/AstroidController.h"
 #include "Game/ComponentRendererSprite.h"
+#include "Game/LaserController.h"
 
 void InitGame();
 void ProcessEvents(SDL_Event& event);
@@ -34,10 +35,16 @@ int main() {
 
 	//Create the player
 	auto playerObject = engine.CreateGameObject("PlayerObject");
+
 	auto playerController = std::shared_ptr<ExampleGame::PlayerController>(new ExampleGame::PlayerController(atlas));
 	auto playerComponentRenderer = std::make_shared<ExampleGame::ComponentRendererSprite>();
+	auto laserController = std::make_shared<ExampleGame::LaserController>(atlas);
+
 	playerObject->AddComponent(playerController);
 	playerObject->AddComponent(playerComponentRenderer);
+	playerObject->AddComponent(laserController);
+
+
 	playerComponentRenderer->sprite = atlas->get("playerShip1_green.png");
 
 

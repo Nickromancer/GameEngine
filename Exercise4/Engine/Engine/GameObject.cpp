@@ -10,48 +10,54 @@ namespace MyEngine {
 	// public API
 	void GameObject::Init() {
 		for (auto& component : _components)
-			component->Init();
+			if (component)
+				component->Init();
 
 		for (auto& child : _children)
-			child->Init();
+			if (child)
+				child->Init();
 	}
 
 	void GameObject::Update(float deltaTime) {
 		for (auto& component : _components)
-			component->Update(deltaTime);
+			if (component)
+				component->Update(deltaTime);
 
 		for (auto& child : _children)
-			child->Update(deltaTime);
+			if (child)
+				child->Update(deltaTime);
 	}
 
 	void GameObject::Render(sre::SpriteBatch::SpriteBatchBuilder& spriteBatchBuilder) {
 		for (auto& component : _components)
-			component->Render(spriteBatchBuilder);
+			if (component)
+				component->Render(spriteBatchBuilder);
 
 		for (auto& child : _children)
-			child->Render(spriteBatchBuilder);
+			if (child)
+				child->Render(spriteBatchBuilder);
 	}
 
 	void GameObject::KeyEvent(SDL_Event& e) {
 		for (auto& component : _components)
-			component->KeyEvent(e);
+			if (component)
+				component->KeyEvent(e);
 
 		for (auto& child : _children)
-			child->KeyEvent(e);
+			if (child)
+				child->KeyEvent(e);
 	}
 
 	void GameObject::Delete() {
 		for (auto& component : _components)
 		{
-			component->Delete();
-			delete &component;
+			component = nullptr;
 		}
+
 
 		for (auto& child : _children)
 		{
-			child->Delete();
-			delete& child;
-
+			child = nullptr;
 		}
 	}
 

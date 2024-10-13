@@ -1,38 +1,60 @@
 #include "LaserController.h"
 
 #include "Engine/MyEngine.h"
+#include "ComponentRendererSprite.h"
+#include "LaserObjectController.h"
 
-namespace ExampleGame {
+namespace ExampleGame 
+{
+	LaserController::LaserController(std::shared_ptr<sre::SpriteAtlas> atlas) 
+	{
+		sprite_atlas = atlas;
+	}
+
 	void LaserController::Init() {
-		MyEngine::GameObject* parent = GetGameObject();
+
+		time_start = 0;
+	}
+
+	void LaserController::Update(float deltaTime) 
+	{
 		MyEngine::Engine* engine = MyEngine::Engine::GetInstance();
-		time_start = engine->GetTime();
+		MyEngine::GameObject* parent = GetGameObject();
 
 		direction.x = glm::sin(glm::radians(-parent->rotation));
 		direction.y = glm::cos(glm::radians(-parent->rotation));
 		glm::normalize(direction);
 
-
-
-		//std::cout << "Created: " << position.x << " : " << position.y << "Parent: " << parent->GetName() << "\n";
-		//std::cout << direction.x << " X : Y " << direction.y << "\n";
-
-
+		time_elapsed = MyEngine::Engine::GetInstance()->GetTime() - time_start;
 	}
 
-	void LaserController::Update(float deltaTime) {
+	void LaserController::KeyEvent(SDL_Event& event) 
+	{
+		if ((event.key.keysym.sym == SDLK_SPACE && event.type == SDL_KEYDOWN) && time_elapsed > COOLDOWN)
+		{				
+			ShootLaser();
+			time_start = MyEngine::Engine::GetInstance()->GetTime();
+		}
+	}
+
+	void LaserController::ShootLaser() 
+	{
 		MyEngine::Engine* engine = MyEngine::Engine::GetInstance();
 		MyEngine::GameObject* parent = GetGameObject();
-		float time_elapsed = engine->GetTime() - time_start;
+		
+		auto laserObject = engine->GetInstance()->CreateGameObject("laserObject");
+		GetGameObject()->AddChild(std::make_shared<MyEngine::GameObject>(*laserObject));
 
-		std::cout << LifeTime << "\n";
+		laserObject->rotation = parent->rotation;
+		laserObject->position = parent->position;
 
-		parent->position += direction * MovAmount * deltaTime;
+		auto laserComponentRenderer = std::make_shared<ExampleGame::ComponentRendererSprite>();
+		auto laserObjectController = std::make_shared<ExampleGame::LaserObjectController>(position, direction);
 
-		if (time_elapsed > LifeTime)
-		{
-			//delete parent;
-		}
+		laserObject->AddComponent(laserComponentRenderer);
+		laserObject->AddComponent(laserObjectController);
 
+		laserComponentRenderer->sprite = sprite_atlas->get("laserGreen12.png");
+		
 	}
 }

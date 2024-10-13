@@ -25,28 +25,31 @@ namespace ExampleGame {
 		direction.y = glm::cos(glm::radians(-parent->rotation));
 		glm::normalize(direction);
 
+		speed -= drag * deltaTime;
+
+		if (speed <= .1f)
+			speed = 0;
+
+		std::cout << direction.x << " : " << direction.y << "\n";
+
+		//velocity += (direction * (speed * deltaTime)) + 1.f / 2.f * ((drag / 10.f) * glm::pow(deltaTime, 2.f));
+
+		velocity += (direction * speed * deltaTime) - drag;
+
+
+
+		parent->position += (velocity * deltaTime);
+
 		if (Left)
-			parent->rotation += RotSpeed * deltaTime;
+			parent->rotation += DELTA_SPEED * deltaTime;
 
 		if (Right)
-			parent->rotation -= RotSpeed * deltaTime;
+			parent->rotation -= DELTA_DEGREE * deltaTime;
 
 		if (Forward)
-			parent->position += direction * MovAmount * deltaTime;
-
-		if (Fired) 
 		{
-			auto laserObject = engine->GetInstance()->CreateGameObject("laserObject");
-            GetGameObject()->AddChild(std::make_shared<MyEngine::GameObject>(*laserObject));
-			auto laserController = std::shared_ptr<ExampleGame::LaserController>(new ExampleGame::LaserController());
-			auto laserComponentRenderer = std::make_shared<ExampleGame::ComponentRendererSprite>();
-			laserObject->AddComponent(laserController);
-			laserObject->AddComponent(laserComponentRenderer);
-			laserComponentRenderer->sprite = sprite_atlas->get("laserGreen12.png");
-
-			laserObject->position = parent->position;
-			laserObject->rotation = parent->rotation;
-			laserObject->Init();
+			speed += DELTA_SPEED * deltaTime;
+			direction += speed * deltaTime;
 
 		}
 
@@ -59,6 +62,7 @@ namespace ExampleGame {
 			parent->position.y = screen_size.y;
 		if (parent->position.y > screen_size.y)
 			parent->position.y = 0;
+
 
 	}
 
@@ -73,9 +77,6 @@ namespace ExampleGame {
 			break;
 		case SDLK_w:
 			Forward = event.type == SDL_KEYDOWN;
-			break;
-		case SDLK_SPACE:
-			Fired = event.type == SDL_KEYDOWN;
 			break;
 		default:
 			break;

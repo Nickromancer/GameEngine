@@ -65,6 +65,6 @@ namespace MyEngine {
 	}
 
 	void Engine::DeleteGameObject(GameObject* object) {
-		delete object;
+		//object->Delete();
 	}
 }
